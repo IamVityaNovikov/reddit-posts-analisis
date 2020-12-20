@@ -125,10 +125,14 @@ def get_topics():
 			# messagebox.showinfo("Error", row)
 
 def get_sentiment():
+	fig1, ax1 = plt.subplots(2)
 	sentiment = SentimentAnalyzer.Sentiment
 	category = url_entry.get()
 	classifier = BotClassifier.BotClassifier()
 	print("Bot check", bot_check.get())
+	troll_count = 0
+	bot_count = 0
+	normal_count = 0
 	try:
 		query = f'SELECT DISTINCT commentText, topicAuthor FROM comments WHERE topicCategory = \'{category}\''
 		con = sqlite3.connect('reddit.db')
@@ -140,15 +144,35 @@ def get_sentiment():
 				user = GetUserData.UserData(row[1])
 				features = user.get_features()
 				predicted = classifier.predict(features)
-				print(predicted)
-				if predicted[0] != 'bot':
+				print(predicted, row[1])
+				if predicted[0] == 'normal':
 					text.append(row[0])
+					normal_count += 1
+				elif predicted[0] == 'troll':
+					troll_count += 1
+				elif predicted[0] == 'bot':
+					bot_count += 1
 			else:
 				text.append(row[0])
-		url_display.insert(INSERT, sentiment.get_sentiment(text))
+		res = sentiment.get_sentiment(text)
+		print("res", res)
+
+		url_display.insert(INSERT, "poz: " + str("{0:.0f}%".format(100 * res[0] / sum(res))) + '\n')
+		url_display.insert(INSERT, "neu: " + str("{0:.0f}%".format(100 * res[1] / sum(res))) + '\n')
+		url_display.insert(INSERT, "neg: " + str("{0:.0f}%".format(100 * res[2] / sum(res))) + '\n')
+		ax1[0].pie(res, labels=['poz', 'neu', 'neg'], autopct='%1.1f%%',
+				 		  shadow=True, startangle=90)
+		ax1[0].axis('equal')
 
 	except:
 		messagebox.showinfo("Error", f"{str(category).upper()} topic does not exist")
+
+	if bot_check.get():
+		labels = ['trolls', 'bots', 'normal users']
+		ax1[1].pie([troll_count, bot_count, normal_count],labels=labels, autopct='%1.1f%%',
+				shadow=True, startangle=90)
+		ax1[1].axis('equal')
+	plt.show()
 
 # Clear entry widget
 def clear_text():

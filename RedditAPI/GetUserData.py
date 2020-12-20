@@ -25,10 +25,22 @@ class UserData:
 		except NotFound:
 			print("USER DO NOT EXIST")
 			return None
-		self.author_verified = bool(self.redditor.has_verified_email)
-		self.author_comment_karma = self.redditor.comment_karma
-		self.author_link_karma = self. redditor.link_karma
-		self.over_18 = self.redditor.subreddit["over_18"]
+		try:
+			self.author_verified = bool(self.redditor.has_verified_email)
+		except:
+			self.author_verified = False
+		try:
+			self.author_comment_karma = self.redditor.comment_karma
+		except:
+			self.author_verified = 0
+		try:
+			self.author_link_karma = self. redditor.link_karma
+		except:
+			self.author_link_karma = 0
+		try:
+			self.over_18 = self.redditor.subreddit["over_18"]
+		except:
+			self.over_18 = False
 		self.is_submitter = False
 
 		self.comments = []

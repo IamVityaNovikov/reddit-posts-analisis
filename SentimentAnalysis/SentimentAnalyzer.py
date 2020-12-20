@@ -21,4 +21,5 @@ class Sentiment:
             if sentiment.polarity < 0:
                 neg = neg + 1
             print(sentiment.polarity)
-        return ("poz: " + str("{0:.0f}%".format(100*poz/len(list))), "neg: " + str("{0:.0f}%".format(100*neg/len(list))), "neu: " + str("{0:.0f}%".format(100*neu/len(list))))
+        res = [poz, neu, neg]
+        return (res)
