@@ -1,5 +1,7 @@
 import praw
 import sqlite3
+from TextRank import Summarizer
+
 
 con = sqlite3.connect('reddit.db')
 c = con.cursor()
@@ -35,7 +37,11 @@ class GetData:
                     pass
                 try:
                     for comment in topic.comments:
-                        commentInsert.append((comment.body, comment.id, topic.title, topic.selftext, topic.id, subredditName, comment.author.name))
+                        comment_text = comment.body
+                        if len(comment_text) > 1000:
+                            comment_text = Summarizer.summarize(comment_text, language='english', ratio=0.4, words=500)
+                            print("SUMMARIZED ", comment_text)
+                        commentInsert.append((comment_text, comment.id, topic.title, topic.selftext, topic.id, subredditName, comment.author.name))
                 except:
                     pass
                 print('*****************************')

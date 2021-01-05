@@ -41,13 +41,13 @@ tab5 = ttk.Frame(tab_control, height=100)
 
 # ADD TABS TO NOTEBOOK
 tab_control.add(tab1, text=f'{"Reddit API":^30s}')
-tab_control.add(tab2, text=f'{"TextRank Algorithm":^20s}')
+tab_control.add(tab2, text=f'{"Summary":^30s}')
 tab_control.add(tab3, text=f'{"Sentiment Analysis":^20s}')
 
 label1 = Label(tab1, text='Reddit API', padx=5, pady=5)
 label1.grid(column=0, row=0)
 
-label2 = Label(tab2, text='TextRank Algorithm', padx=5, pady=5)
+label2 = Label(tab2, text='Summary', padx=5, pady=5)
 label2.grid(column=1, row=0)
 
 label3 = Label(tab3, text='Sentiment Analysis', padx=5, pady=5)
@@ -133,7 +133,7 @@ def get_sentiment():
 	troll_count = 0
 	bot_count = 0
 	normal_count = 0
-	try:
+	for i in range(1):
 		query = f'SELECT DISTINCT commentText, topicAuthor FROM comments WHERE topicCategory = \'{category}\''
 		con = sqlite3.connect('reddit.db')
 		c = con.cursor()
@@ -141,17 +141,20 @@ def get_sentiment():
 		text = []
 		for row in db_rows:
 			if bot_check.get():
-				user = GetUserData.UserData(row[1])
-				features = user.get_features()
-				predicted = classifier.predict(features)
-				print(predicted, row[1])
-				if predicted[0] == 'normal':
-					text.append(row[0])
-					normal_count += 1
-				elif predicted[0] == 'troll':
-					troll_count += 1
-				elif predicted[0] == 'bot':
-					bot_count += 1
+				try:
+					user = GetUserData.UserData(row[1])
+					features = user.get_features()
+					predicted = classifier.predict(features)
+					print(predicted, row[1])
+					if predicted[0] == 'normal':
+						text.append(row[0])
+						normal_count += 1
+					elif predicted[0] == 'troll':
+						troll_count += 1
+					elif predicted[0] == 'bot':
+						bot_count += 1
+				except:
+					continue
 			else:
 				text.append(row[0])
 		res = sentiment.get_sentiment(text)
@@ -164,8 +167,8 @@ def get_sentiment():
 				 		  shadow=True, startangle=90)
 		ax1[0].axis('equal')
 
-	except:
-		messagebox.showinfo("Error", f"{str(category).upper()} topic does not exist")
+	#except:
+		#y6messagebox.showinfo("Error", f"{str(category).upper()} topic does not exist")
 
 	if bot_check.get():
 		labels = ['trolls', 'bots', 'normal users']
